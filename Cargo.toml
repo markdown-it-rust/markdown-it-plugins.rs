@@ -6,7 +6,7 @@ members = ["crates/*"]
 [workspace.package]
 edition = "2021"
 authors = ["Chris Sewell <chrisj_sewell@hotmail.com>"]
-repository = "https://github.com/chrisjsewell/markdown-it-front-matter.rs"
+repository = "https://github.com/chrisjsewell/markdown-it-plugins.rs"
 keywords = ["markdown", "markdown-it"]
 categories = ["text-processing", "parsing"]
 

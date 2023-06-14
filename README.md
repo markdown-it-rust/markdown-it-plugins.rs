@@ -1,8 +1,8 @@
 # markdown-it-plugins.rs
 
-Monorepo of plugins for [markdown-it.rs](https://crates.io/crates/markdown-it-front-matter):
+Monorepo of plugins for [markdown-it.rs](https://crates.io/crates/markdown-it):
 
-* [markdown-it-front-matter](crates/front_matter/README.md)
+- [markdown-it-front-matter](crates/front_matter/README.md)
 
 ## Development
 

@@ -2,7 +2,7 @@
 
 [<img alt="crates.io" src="https://img.shields.io/crates/v/markdown-it-front-matter.svg?style=for-the-badge&color=fc8d62&logo=rust" height="20">](https://crates.io/crates/markdown-it-front-matter)
 
-A [markdown-it.rs](https://crates.io/crates/markdown-it-front-matter) plugin to process front matter containers.
+A [markdown-it.rs](https://crates.io/crates/markdown-it) plugin to process front matter containers.
 
 ## Usage
 
