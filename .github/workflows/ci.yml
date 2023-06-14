@@ -1,4 +1,4 @@
-name: tests
+name: CI
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
     - uses: actions/setup-python@v4
     - uses: pre-commit/action@v3.0.0
 
-  build:
+  tests:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -24,7 +24,16 @@ jobs:
       uses: dtolnay/rust-toolchain@stable
     - name: cache rust
       uses: Swatinem/rust-cache@v2
-    - name: Build
-      run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: install rust stable
+      uses: dtolnay/rust-toolchain@stable
+    - name: cache rust
+      uses: Swatinem/rust-cache@v2
+    - name: Package crates
+      run: cargo package --workspace
