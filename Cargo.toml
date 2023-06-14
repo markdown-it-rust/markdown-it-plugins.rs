@@ -1,0 +1,20 @@
+[package]
+name = "markdown-it-front-matter"
+version = "0.1.0"
+authors = ["Chris Sewell <chrisj_sewell@hotmail.com>"]
+description = "A markdown-it plugin for parsing front matter"
+readme = "README.md"
+repository = "https://github.com/chrisjsewell/markdown-it-front-matter.rs"
+keywords = ["markdown", "markdown-it"]
+categories = ["text-processing", "parsing"]
+license = "Apache-2.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+markdown-it = "0.5.0"
+
+[dev-dependencies]
+indoc = "2.0.1"
+rstest = "0.17.0"
