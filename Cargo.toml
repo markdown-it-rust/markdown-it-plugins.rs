@@ -14,3 +14,8 @@ categories = ["text-processing", "parsing"]
 markdown-it = "0.5"
 indoc = "2.0.1"
 rstest = "0.17.0"
+
+[workspace.metadata.release]
+pre-release-commit-message = "🚀 Release"
+tag-message = "🚀 Release {{crate_name}} version {{version}}"
+allow-branch = ["main"]

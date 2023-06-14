@@ -12,3 +12,7 @@ Use [pre-commit](https://pre-commit.com/) to run checkers and formatters before 
 git add -A
 pre-commit run --all
 ```
+
+## Release
+
+Use [cargo-release](https://github.com/crate-ci/cargo-release) to release.
