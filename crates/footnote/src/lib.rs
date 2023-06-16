@@ -57,10 +57,10 @@ impl FootnoteMap {
                         self.def_to_refs.insert(*def_id, vec![self.ref_counter]);
                     }
                 }
-                return Some((*def_id, self.ref_counter));
+                Some((*def_id, self.ref_counter))
             }
-            None => return None,
-        };
+            None => None,
+        }
     }
     // return the IDs of all references to the given definition ID
     fn referenced_by(&self, def_id: usize) -> Vec<usize> {
