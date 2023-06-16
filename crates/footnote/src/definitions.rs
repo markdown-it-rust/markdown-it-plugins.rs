@@ -1,4 +1,5 @@
 //! Plugin to parse footnote definitions
+
 use markdown_it::parser::block::{BlockRule, BlockState};
 use markdown_it::plugins::cmark::block::reference::ReferenceScanner;
 use markdown_it::{MarkdownIt, Node, NodeValue, Renderer};
@@ -79,7 +80,7 @@ impl FootnoteDefinitionScanner {
             match chars.next() {
                 None => break,
                 Some(' ') => spaces += 1,
-                Some('\t') => spaces += 4 - spaces % 4,
+                Some('\t') => spaces += 1, // spaces += 4 - spaces % 4,
                 Some(_) => break,
             }
         }
@@ -119,9 +120,8 @@ impl BlockRule for FootnoteDefinitionScanner {
 
         // temporarily change the first line offsets to account for the footnote label
         // TODO this is not quite the same as pandoc where spaces >= 8 is code block (here >= 4)
-        state.line_offsets[first_line].first_nonspace += label.len() + 4 + spaces;
-        state.line_offsets[first_line].indent_nonspace += 4 + spaces as i32;
-
+        state.line_offsets[first_line].first_nonspace += "[^]:".len() + label.len() + spaces;
+        state.line_offsets[first_line].indent_nonspace += "[^]:".len() as i32 + spaces as i32;
         // tokenize with a +4 space indent
         state.blk_indent += 4;
         state.md.block.tokenize(state);

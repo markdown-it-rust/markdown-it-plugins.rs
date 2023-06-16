@@ -10,5 +10,5 @@ fn test_fixtures(file: PathBuf) {
     markdown_it_front_matter::add(parser);
     let actual = parser.parse(&f.input).render();
 
-    dev::assert_fixture(f, &actual);
+    dev::assert_no_diff(f, &actual);
 }
