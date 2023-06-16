@@ -68,10 +68,6 @@ pub fn read_fixture_file(file: PathBuf) -> FixtureFile {
 pub fn assert_fixture(f: FixtureFile, actual: &str) {
     if actual != f.expected {
         let diff = diff_lines(&f.expected, actual);
-        panic!(
-            "\n{}\nDiff:\n{}\n\nActual:\n{actual}\n",
-            f.title,
-            diff
-        )
+        panic!("\n{}\nDiff:\n{}\n\nActual:\n{actual}\n", f.title, diff)
     }
 }

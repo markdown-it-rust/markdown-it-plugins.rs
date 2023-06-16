@@ -51,7 +51,13 @@ impl CoreRule for FootnoteBackrefRule {
         // walk through the AST and add backref anchors to footnote definitions
         root.walk_mut(|node, _| {
             if let Some(def_node) = node.cast::<FootnoteDefinition>() {
-                if let Some(ref_ids) = map.referenced_by(def_node) {
+                let ref_ids = {
+                    match def_node.def_id {
+                        Some(def_id) => map.referenced_by(def_id),
+                        None => Vec::new(),
+                    }
+                };
+                if !ref_ids.is_empty() {
                     // if the final child is a paragraph node,
                     // append the anchor to its children,
                     // otherwise simply append to the end of the node children

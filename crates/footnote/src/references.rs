@@ -14,8 +14,8 @@ pub fn add(md: &mut MarkdownIt) {
 /// AST node for footnote reference
 pub struct FootnoteReference {
     pub label: String,
-    pub def_id: usize,
     pub ref_id: usize,
+    pub def_id: usize,
 }
 
 // This defines how your custom node should be rendered.
@@ -32,7 +32,7 @@ impl NodeValue for FootnoteReference {
                 ("id", format!("fnref{}", self.ref_id)),
             ],
         );
-        fmt.text(&format!("[{}]", self.ref_id));
+        fmt.text(&format!("[{}]", self.def_id));
         fmt.close("a");
         fmt.close("sup");
     }
@@ -82,8 +82,8 @@ impl InlineRule for FootnoteReferenceScanner {
         Some((
             Node::new(FootnoteReference {
                 label,
-                def_id,
                 ref_id,
+                def_id,
             }),
             length,
         ))

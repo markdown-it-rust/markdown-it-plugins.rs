@@ -17,13 +17,15 @@ pub fn add(md: &mut MarkdownIt) {
 /// AST node for footnote definition
 pub struct FootnoteDefinition {
     pub label: String,
-    pub def_id: usize,
+    pub def_id: Option<usize>,
 }
 
 impl NodeValue for FootnoteDefinition {
     fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
         let mut attrs = node.attrs.clone();
-        attrs.push(("id", format!("fn{}", self.def_id)));
+        if let Some(def_id) = self.def_id {
+            attrs.push(("id", format!("fn{}", def_id)));
+        }
         attrs.push(("class", "footnote-item".into()));
 
         fmt.cr();

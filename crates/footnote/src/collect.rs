@@ -93,12 +93,14 @@ impl CoreRule for FootnoteCollectRule {
                     let extracted = std::mem::replace(child, Node::new(PlaceholderNode));
                     match extracted.cast::<FootnoteDefinition>() {
                         Some(def_node) => {
-                            match map.referenced_by(def_node) {
-                                Some(_) => {}
-                                None => {
-                                    // skip footnotes that are not referenced
-                                    continue;
+                            // skip footnotes that are not referenced
+                            match def_node.def_id {
+                                Some(def_id) => {
+                                    if map.referenced_by(def_id).is_empty() {
+                                        continue;
+                                    }
                                 }
+                                None => continue,
                             }
                         }
                         None => continue,

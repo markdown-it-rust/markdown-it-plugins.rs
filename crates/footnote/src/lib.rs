@@ -5,9 +5,9 @@
 //! markdown_it_footnote::add(parser);
 //! let node = parser.parse("[^note]\n\n[^note]: A footnote\n");
 //! ```
-use definitions::FootnoteDefinition;
-use markdown_it::{parser::extset::RootExt, MarkdownIt};
 use std::collections::HashMap;
+
+use markdown_it::{parser::extset::RootExt, MarkdownIt};
 
 pub mod back_refs;
 pub mod collect;
@@ -23,69 +23,50 @@ pub fn add(md: &mut MarkdownIt) {
 }
 
 #[derive(Debug, Default)]
-// IDs for a footnote label
-struct LabelIDs {
-    defs: Vec<usize>,
-    refs: Vec<usize>,
-}
-
-#[derive(Debug, Default)]
 /// The set of parsed footnote definition labels,
 /// stored in the root node.
 pub struct FootnoteMap {
     def_counter: usize,
     ref_counter: usize,
-    map: HashMap<String, LabelIDs>,
+    label_to_def: HashMap<String, usize>,
+    def_to_refs: HashMap<usize, Vec<usize>>,
 }
 impl RootExt for FootnoteMap {}
 impl FootnoteMap {
-    fn referenced_by(&self, def: &FootnoteDefinition) -> Option<Vec<usize>> {
-        match self.map.get(&def.label) {
-            Some(ids) => {
-                if ids.defs.first() != Some(&def.def_id) {
-                    return None;
-                }
-                if ids.refs.is_empty() {
-                    return None;
-                }
-                Some(ids.refs.clone())
-            }
-            None => None,
+    /// Create an ID for the definition,
+    /// or return None if a definition already exists for the label
+    fn add_def(&mut self, label: &str) -> Option<usize> {
+        if self.label_to_def.contains_key(label) {
+            return None;
         }
-    }
-    /// Returns the ID of the definition
-    fn add_def(&mut self, label: &str) -> usize {
         self.def_counter += 1;
-        match self.map.get_mut(label) {
-            Some(ids) => {
-                ids.defs.push(self.def_counter);
-            }
-            None => {
-                self.map.insert(
-                    label.to_string(),
-                    LabelIDs {
-                        defs: vec![self.def_counter],
-                        refs: vec![],
-                    },
-                );
-            }
-        }
-        self.def_counter
+        self.label_to_def
+            .insert(String::from(label), self.def_counter);
+        Some(self.def_counter)
     }
-    /// If a definition exists,
-    /// returns the ID for the definition and reference
+    /// Create an ID for the reference and return (def_id, ref_id),
+    /// or return None if no definition exists for the label
     fn add_ref(&mut self, label: &str) -> Option<(usize, usize)> {
-        match self.map.get_mut(label) {
-            Some(ids) => {
-                let def_id = match ids.defs.first() {
-                    Some(id) => *id,
-                    None => return None,
-                };
+        match self.label_to_def.get(label) {
+            Some(def_id) => {
                 self.ref_counter += 1;
-                ids.refs.push(self.ref_counter);
-                return Some((def_id, self.ref_counter));
+                // self.def_to_refs.get_mut(&def_id).unwrap().push(self.ref_counter);
+                match self.def_to_refs.get_mut(def_id) {
+                    Some(refs) => refs.push(self.ref_counter),
+                    None => {
+                        self.def_to_refs.insert(*def_id, vec![self.ref_counter]);
+                    }
+                }
+                return Some((*def_id, self.ref_counter));
             }
             None => return None,
         };
+    }
+    // return the IDs of all references to the given definition ID
+    fn referenced_by(&self, def_id: usize) -> Vec<usize> {
+        match self.def_to_refs.get(&def_id) {
+            Some(ids) => ids.clone(),
+            None => Vec::new(),
+        }
     }
 }

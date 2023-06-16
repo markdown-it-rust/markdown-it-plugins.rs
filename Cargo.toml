@@ -14,9 +14,7 @@ categories = ["text-processing", "parsing"]
 markdown-it = "0.5"
 testing = "0.33.13"
 # possible other packages for testing that are not actually used currently
-indoc = "2.0.1"
-rstest = "0.17.0"
-insta = "1.29.0"
+# indoc, rtest, insta
 
 
 [workspace.metadata.release]
