@@ -1,7 +1,7 @@
 [package]
-name = "markdown-it-front-matter"
-version = "0.1.1"
-description = "A markdown-it plugin for parsing front matter"
+name = "markdown-it-footnote"
+version = "0.0.0"
+description = "A markdown-it plugin for parsing footnotes"
 readme = "README.md"
 license = "Apache-2.0"
 authors = { workspace = true }

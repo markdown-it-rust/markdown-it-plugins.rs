@@ -5,6 +5,10 @@ repos:
   rev: v4.4.0
   hooks:
   - id: trailing-whitespace
+    exclude: |
+        (?x)^(
+            .*/tests/fixtures/.*
+        )$
   - id: end-of-file-fixer
 
 - repo: local
@@ -16,3 +20,12 @@ repos:
     language: rust
     types: [rust]
     args: ["--"]
+  # too slow
+  # - id: cargo-fix
+  #   name: cargo-fix
+  #   description: Run cargo fix on the codebase.
+  #   entry: cargo fix
+  #   language: rust
+  #   types: [rust]
+  #   pass_filenames: false
+  #   args: ["--allow-dirty", "--allow-staged"]
