@@ -12,12 +12,14 @@ use markdown_it::{parser::extset::RootExt, MarkdownIt};
 pub mod back_refs;
 pub mod collect;
 pub mod definitions;
+pub mod inline;
 pub mod references;
 
 /// Add the full footnote plugin to the markdown-it parser
 pub fn add(md: &mut MarkdownIt) {
     definitions::add(md);
     references::add(md);
+    inline::add(md);
     collect::add(md);
     back_refs::add(md);
 }
@@ -62,7 +64,15 @@ impl FootnoteMap {
             None => None,
         }
     }
-    // return the IDs of all references to the given definition ID
+    /// Add an inline definition and return (def_id, ref_id)
+    fn add_inline_def(&mut self) -> (usize, usize) {
+        self.def_counter += 1;
+        self.ref_counter += 1;
+        self.def_to_refs
+            .insert(self.def_counter, vec![self.ref_counter]);
+        (self.def_counter, self.ref_counter)
+    }
+    /// return the IDs of all references to the given definition ID
     fn referenced_by(&self, def_id: usize) -> Vec<usize> {
         match self.def_to_refs.get(&def_id) {
             Some(ids) => ids.clone(),

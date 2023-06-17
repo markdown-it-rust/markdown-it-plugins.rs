@@ -20,11 +20,12 @@ repos:
     language: rust
     types: [rust]
     args: ["--"]
-  - id: cargo-fix
-    name: cargo-fix
-    description: Run cargo fix on the codebase.
-    entry: cargo fix
-    language: rust
-    types: [rust]
-    pass_filenames: false
-    args: ["--allow-dirty", "--allow-staged"]
+  # too slow
+  # - id: cargo-fix
+  #   name: cargo-fix
+  #   description: Run cargo fix on the codebase.
+  #   entry: cargo fix
+  #   language: rust
+  #   types: [rust]
+  #   pass_filenames: false
+  #   args: ["--allow-dirty", "--allow-staged"]

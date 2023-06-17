@@ -2,6 +2,7 @@
 //! and move them to be the last child of the root node.
 use markdown_it::{
     parser::core::{CoreRule, Root},
+    plugins::cmark::block::paragraph::Paragraph,
     MarkdownIt, Node, NodeValue,
 };
 
@@ -90,7 +91,7 @@ impl CoreRule for FootnoteCollectRule {
 
             for child in node.children.iter_mut() {
                 if child.is::<FootnoteDefinition>() {
-                    let extracted = std::mem::replace(child, Node::new(PlaceholderNode));
+                    let mut extracted = std::mem::replace(child, Node::new(PlaceholderNode));
                     match extracted.cast::<FootnoteDefinition>() {
                         Some(def_node) => {
                             // skip footnotes that are not referenced
@@ -101,6 +102,13 @@ impl CoreRule for FootnoteCollectRule {
                                     }
                                 }
                                 None => continue,
+                            }
+                            if def_node.inline {
+                                // for inline footnotes,
+                                // we need to wrap the definition's children in a paragraph
+                                let mut para = Node::new(Paragraph);
+                                std::mem::swap(&mut para.children, &mut extracted.children);
+                                extracted.children = vec![para];
                             }
                         }
                         None => continue,

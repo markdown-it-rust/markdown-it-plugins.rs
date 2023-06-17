@@ -1,7 +1,9 @@
 Should allow links in inline footnotes
 ............
 
-Example^[this is another example https://github.com]
+Example^[this is another example [a]]
+
+[a]: https://github.com
 
 ............
 
@@ -9,7 +11,8 @@ Example^[this is another example https://github.com]
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
-<li id="fn1" class="footnote-item"><p>this is another example https://github.com <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+<li id="fn1" class="footnote-item">
+<p>this is another example <a href="https://github.com">a</a> <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>

@@ -17,8 +17,9 @@ pub fn add(md: &mut MarkdownIt) {
 #[derive(Debug)]
 /// AST node for footnote definition
 pub struct FootnoteDefinition {
-    pub label: String,
+    pub label: Option<String>,
     pub def_id: Option<usize>,
+    pub inline: bool,
 }
 
 impl NodeValue for FootnoteDefinition {
@@ -103,14 +104,15 @@ impl BlockRule for FootnoteDefinitionScanner {
         let (label, spaces) = Self::is_def(state)?;
 
         // record the footnote label, so we can match references to it later
-        let definitions = state.root_ext.get_or_insert_default::<FootnoteMap>();
-        let def_id = definitions.add_def(&label);
+        let foot_map = state.root_ext.get_or_insert_default::<FootnoteMap>();
+        let def_id = foot_map.add_def(&label);
 
         // temporarily set the current node to the footnote definition
         // so child nodes are added to it
         let new_node = Node::new(FootnoteDefinition {
-            label: label.clone(),
+            label: Some(label.clone()),
             def_id,
+            inline: false,
         });
         let old_node = std::mem::replace(&mut state.node, new_node);
 

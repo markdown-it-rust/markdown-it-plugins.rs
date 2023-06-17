@@ -13,7 +13,7 @@ pub fn add(md: &mut MarkdownIt) {
 #[derive(Debug)]
 /// AST node for footnote reference
 pub struct FootnoteReference {
-    pub label: String,
+    pub label: Option<String>,
     pub ref_id: usize,
     pub def_id: usize,
 }
@@ -81,7 +81,7 @@ impl InlineRule for FootnoteReferenceScanner {
         // return new node and length of this structure
         Some((
             Node::new(FootnoteReference {
-                label,
+                label: Some(label),
                 ref_id,
                 def_id,
             }),

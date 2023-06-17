@@ -11,7 +11,8 @@ note.]
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
-<li id="fn1" class="footnote-item"><p>Inlines notes are easier to write, since
+<li id="fn1" class="footnote-item">
+<p>Inlines notes are easier to write, since
 you don't have to pick an identifier and move down to type the
 note. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
