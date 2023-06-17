@@ -22,6 +22,8 @@ Here is an inline note.^[my note is here!]
 belong to the previous footnote.
 ```
 
+See the [tests](tests/fixtures) for more examples.
+
 ## Usage
 
 To load the full plugin:
