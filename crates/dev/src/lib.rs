@@ -1,9 +1,13 @@
 //! development utilities
+//!
+//! This contains shared code for reading test fixtures,
+//! testing for differences, and regenerating expected output.
 
 use prettydiff::diff_lines;
 use std::path::PathBuf;
 
 pub struct FixtureFile {
+    pub file: PathBuf,
     pub title: String,
     pub input: String,
     pub expected: String,
@@ -11,7 +15,7 @@ pub struct FixtureFile {
 
 /// Read a fixture file into a FixtureFile struct
 pub fn read_fixture_file(file: PathBuf) -> FixtureFile {
-    let text = std::fs::read_to_string(file).unwrap();
+    let text = std::fs::read_to_string(&file).unwrap();
     let mut lines = text.lines();
     let mut title = String::new();
     let mut input = String::new();
@@ -59,6 +63,7 @@ pub fn read_fixture_file(file: PathBuf) -> FixtureFile {
     }
 
     FixtureFile {
+        file,
         title,
         input,
         expected,
@@ -68,8 +73,35 @@ pub fn read_fixture_file(file: PathBuf) -> FixtureFile {
 /// Assert that the actual output matches the expected output,
 /// and panic with a diff if it does not.
 pub fn assert_no_diff(f: FixtureFile, actual: &str) {
-    if actual != f.expected {
+    if actual.trim_end() != f.expected.trim_end() {
         let diff = diff_lines(&f.expected, actual);
-        panic!("\n{}\nDiff:\n{}\n\nActual:\n{actual}\n", f.title, diff)
+
+        // if environmental variable FORCE_REGEN is set, overwrite the expected output
+        if std::env::var("FORCE_REGEN").is_ok() {
+            let written = std::fs::write(
+                f.file,
+                format!(
+                    "{}\n......\n\n{}\n\n......\n\n{}\n",
+                    f.title,
+                    f.input,
+                    actual.trim_end()
+                ),
+            )
+            .is_ok();
+            if written {
+                panic!(
+                    "\n{}\nDiff:\n{}\n\nRegenerated expected output",
+                    f.title, diff
+                );
+            }
+            panic!(
+                "\n{}\nDiff:\n{}\n\nFailed to regenerate expected output",
+                f.title, diff
+            )
+        }
+        panic!(
+            "\n{}\nDiff:\n{}\nSet FORCE_REGEN=true to update fixture",
+            f.title, diff
+        );
     }
 }

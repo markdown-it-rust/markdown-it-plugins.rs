@@ -1,13 +1,14 @@
 We support inline notes too (pandoc example)
-....................
+
+......
 
 Here is an inline note.^[Inlines notes are easier to write, since
 you don't have to pick an identifier and move down to type the
 note.]
 
-....................
+......
 
-<p>Here is an inline note.<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p data-sourcepos="1:1-3:6">Here is an inline note.<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">

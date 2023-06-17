@@ -6,6 +6,7 @@ fn test_html(file: PathBuf) {
     let f = dev::read_fixture_file(file);
 
     let parser = &mut markdown_it::MarkdownIt::new();
+    markdown_it::plugins::sourcepos::add(parser);
     markdown_it::plugins::cmark::add(parser);
     markdown_it_footnote::add(parser);
     let actual = parser.parse(&f.input).render();
