@@ -1,4 +1,22 @@
-//! Parse inline footnotes
+//! Plugin to parse inline footnotes
+//!
+//! ```rust
+//! let parser = &mut markdown_it::MarkdownIt::new();
+//! markdown_it::plugins::cmark::add(parser);
+//! markdown_it_footnote::inline::add(parser);
+//! let root = parser.parse("Example^[This is a footnote]");
+//! let mut names = vec![];
+//! root.walk(|node,_| { names.push(node.name()); });
+//! assert_eq!(names, vec![
+//! "markdown_it::parser::core::root::Root",
+//! "markdown_it::plugins::cmark::block::paragraph::Paragraph",
+//! "markdown_it::parser::inline::builtin::skip_text::Text",
+//! "markdown_it_footnote::inline::InlineFootnote",
+//! "markdown_it_footnote::definitions::FootnoteDefinition",
+//! "markdown_it::parser::inline::builtin::skip_text::Text",
+//! "markdown_it_footnote::references::FootnoteReference"
+//! ]);
+//! ```
 use markdown_it::{
     parser::inline::{InlineRule, InlineState},
     MarkdownIt, Node, NodeValue,
@@ -6,7 +24,7 @@ use markdown_it::{
 
 use crate::{definitions::FootnoteDefinition, FootnoteMap};
 
-/// Add the footnote reference parsing to the markdown parser
+/// Add the inline footnote plugin to the parser
 pub fn add(md: &mut MarkdownIt) {
     // insert this rule into inline subparser
     md.inline.add_rule::<InlineFootnoteScanner>();
@@ -27,10 +45,20 @@ struct InlineFootnoteScanner;
 impl InlineRule for InlineFootnoteScanner {
     const MARKER: char = '^';
 
-    // TODO don't need to tokenize here
-    // fn check(state: &mut super::InlineState) -> Option<usize> {
-    //     Self::run(state).map(|(_node, len)| len)
-    // }
+    fn check(state: &mut InlineState) -> Option<usize> {
+        let mut chars = state.src[state.pos..state.pos_max].chars();
+
+        // check line starts with the correct syntax
+        let Some('^') = chars.next() else { return None; };
+        let Some('[') = chars.next() else { return None; };
+
+        let content_start = state.pos + 2;
+
+        match parse_footnote(state, content_start) {
+            Some(content_end) => Some(content_end + 1 - state.pos),
+            None => None,
+        }
+    }
 
     fn run(state: &mut InlineState) -> Option<(Node, usize)> {
         let mut chars = state.src[state.pos..state.pos_max].chars();

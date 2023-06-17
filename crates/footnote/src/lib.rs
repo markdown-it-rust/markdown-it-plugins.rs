@@ -37,7 +37,7 @@ impl RootExt for FootnoteMap {}
 impl FootnoteMap {
     /// Create an ID for the definition,
     /// or return None if a definition already exists for the label
-    fn add_def(&mut self, label: &str) -> Option<usize> {
+    pub fn add_def(&mut self, label: &str) -> Option<usize> {
         if self.label_to_def.contains_key(label) {
             return None;
         }
@@ -48,7 +48,7 @@ impl FootnoteMap {
     }
     /// Create an ID for the reference and return (def_id, ref_id),
     /// or return None if no definition exists for the label
-    fn add_ref(&mut self, label: &str) -> Option<(usize, usize)> {
+    pub fn add_ref(&mut self, label: &str) -> Option<(usize, usize)> {
         match self.label_to_def.get(label) {
             Some(def_id) => {
                 self.ref_counter += 1;
@@ -65,7 +65,7 @@ impl FootnoteMap {
         }
     }
     /// Add an inline definition and return (def_id, ref_id)
-    fn add_inline_def(&mut self) -> (usize, usize) {
+    pub fn add_inline_def(&mut self) -> (usize, usize) {
         self.def_counter += 1;
         self.ref_counter += 1;
         self.def_to_refs
@@ -73,7 +73,7 @@ impl FootnoteMap {
         (self.def_counter, self.ref_counter)
     }
     /// return the IDs of all references to the given definition ID
-    fn referenced_by(&self, def_id: usize) -> Vec<usize> {
+    pub fn referenced_by(&self, def_id: usize) -> Vec<usize> {
         match self.def_to_refs.get(&def_id) {
             Some(ids) => ids.clone(),
             None => Vec::new(),

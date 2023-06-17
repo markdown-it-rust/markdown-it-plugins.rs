@@ -1,4 +1,22 @@
 //! Plugin to parse footnote references
+//!
+//! ```rust
+//! let parser = &mut markdown_it::MarkdownIt::new();
+//! markdown_it::plugins::cmark::add(parser);
+//! markdown_it_footnote::references::add(parser);
+//! markdown_it_footnote::definitions::add(parser);
+//! let root = parser.parse("[^label]\n\n[^label]: This is a footnote");
+//! let mut names = vec![];
+//! root.walk(|node,_| { names.push(node.name()); });
+//! assert_eq!(names, vec![
+//! "markdown_it::parser::core::root::Root",
+//! "markdown_it::plugins::cmark::block::paragraph::Paragraph",
+//! "markdown_it_footnote::references::FootnoteReference",
+//! "markdown_it_footnote::definitions::FootnoteDefinition",
+//! "markdown_it::plugins::cmark::block::paragraph::Paragraph",
+//! "markdown_it::parser::inline::builtin::skip_text::Text"
+//! ]);
+//! ```
 use markdown_it::parser::inline::{InlineRule, InlineState};
 use markdown_it::{MarkdownIt, Node, NodeValue, Renderer};
 
@@ -18,7 +36,6 @@ pub struct FootnoteReference {
     pub def_id: usize,
 }
 
-// This defines how your custom node should be rendered.
 impl NodeValue for FootnoteReference {
     fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
         let mut attrs = node.attrs.clone();

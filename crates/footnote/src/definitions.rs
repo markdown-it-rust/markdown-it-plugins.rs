@@ -1,4 +1,19 @@
 //! Plugin to parse footnote definitions
+//!
+//! ```rust
+//! let parser = &mut markdown_it::MarkdownIt::new();
+//! markdown_it::plugins::cmark::add(parser);
+//! markdown_it_footnote::definitions::add(parser);
+//! let root = parser.parse("[^label]: This is a footnote");
+//! let mut names = vec![];
+//! root.walk(|node,_| { names.push(node.name()); });
+//! assert_eq!(names, vec![
+//! "markdown_it::parser::core::root::Root",
+//! "markdown_it_footnote::definitions::FootnoteDefinition",
+//! "markdown_it::plugins::cmark::block::paragraph::Paragraph",
+//! "markdown_it::parser::inline::builtin::skip_text::Text",
+//! ]);
+//! ```
 
 use markdown_it::parser::block::{BlockRule, BlockState};
 use markdown_it::plugins::cmark::block::reference::ReferenceScanner;
@@ -6,7 +21,7 @@ use markdown_it::{MarkdownIt, Node, NodeValue, Renderer};
 
 use crate::FootnoteMap;
 
-/// Add the footnote definition parsing to the markdown parser
+/// Add the footnote definition plugin to the parser
 pub fn add(md: &mut MarkdownIt) {
     // insert this rule into block subparser
     md.block

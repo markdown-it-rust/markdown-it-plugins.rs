@@ -1,5 +1,29 @@
-//! Plugin to collect footnote definitions
+//! Plugin to collect footnote definitions,
+//! removing duplicate/unreferenced definitions,
 //! and move them to be the last child of the root node.
+//!
+//! ```rust
+//! let parser = &mut markdown_it::MarkdownIt::new();
+//! markdown_it::plugins::cmark::add(parser);
+//! markdown_it_footnote::references::add(parser);
+//! markdown_it_footnote::definitions::add(parser);
+//! markdown_it_footnote::collect::add(parser);
+//! let root = parser.parse("[^label]\n\n[^label]: This is a footnote\n\n> quote");
+//! let mut names = vec![];
+//! root.walk(|node,_| { names.push(node.name()); });
+//! assert_eq!(names, vec![
+//! "markdown_it::parser::core::root::Root",
+//! "markdown_it::plugins::cmark::block::paragraph::Paragraph",
+//! "markdown_it_footnote::references::FootnoteReference",
+//! "markdown_it::plugins::cmark::block::blockquote::Blockquote",
+//! "markdown_it::plugins::cmark::block::paragraph::Paragraph",
+//! "markdown_it::parser::inline::builtin::skip_text::Text",
+//! "markdown_it_footnote::collect::FootnotesContainerNode",
+//! "markdown_it_footnote::definitions::FootnoteDefinition",
+//! "markdown_it::plugins::cmark::block::paragraph::Paragraph",
+//! "markdown_it::parser::inline::builtin::skip_text::Text",
+//! ]);
+//! ```
 use markdown_it::{
     parser::core::{CoreRule, Root},
     plugins::cmark::block::paragraph::Paragraph,

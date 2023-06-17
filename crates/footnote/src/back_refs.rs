@@ -1,4 +1,25 @@
-//! Plugin to add anchor(s) to footnote definitions with links back to the reference(s).
+//! Plugin to add anchor(s) to footnote definitions,
+//! with links back to the reference(s).
+//!
+//! ```rust
+//! let parser = &mut markdown_it::MarkdownIt::new();
+//! markdown_it::plugins::cmark::add(parser);
+//! markdown_it_footnote::references::add(parser);
+//! markdown_it_footnote::definitions::add(parser);
+//! markdown_it_footnote::back_refs::add(parser);
+//! let root = parser.parse("[^label]\n\n[^label]: This is a footnote");
+//! let mut names = vec![];
+//! root.walk(|node,_| { names.push(node.name()); });
+//! assert_eq!(names, vec![
+//! "markdown_it::parser::core::root::Root",
+//! "markdown_it::plugins::cmark::block::paragraph::Paragraph",
+//! "markdown_it_footnote::references::FootnoteReference",
+//! "markdown_it_footnote::definitions::FootnoteDefinition",
+//! "markdown_it::plugins::cmark::block::paragraph::Paragraph",
+//! "markdown_it::parser::inline::builtin::skip_text::Text",
+//! "markdown_it_footnote::back_refs::FootnoteRefAnchor",
+//! ]);
+//! ```
 use markdown_it::{
     parser::core::{CoreRule, Root},
     plugins::cmark::block::paragraph::Paragraph,
