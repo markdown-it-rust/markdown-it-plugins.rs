@@ -1,5 +1,5 @@
 //! Plugin to collect footnote definitions,
-//! removing duplicate/unreferenced definitions,
+//! removing duplicate/unreferenced ones,
 //! and move them to be the last child of the root node.
 //!
 //! ```rust

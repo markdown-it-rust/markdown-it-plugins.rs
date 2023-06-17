@@ -15,7 +15,7 @@ pub mod definitions;
 pub mod inline;
 pub mod references;
 
-/// Add the full footnote plugin to the markdown-it parser
+/// Add the full footnote plugin to the parser
 pub fn add(md: &mut MarkdownIt) {
     definitions::add(md);
     references::add(md);
