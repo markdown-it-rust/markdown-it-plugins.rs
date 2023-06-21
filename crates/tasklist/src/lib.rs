@@ -17,7 +17,10 @@
 //! ```
 
 use markdown_it::{
-    parser::{core::CoreRule, inline::Text},
+    parser::{
+        core::CoreRule,
+        inline::{builtin::InlineParserRule, Text},
+    },
     plugins::cmark::block::{
         list::{BulletList, ListItem, OrderedList},
         paragraph::Paragraph,
@@ -29,12 +32,14 @@ use regex::Regex;
 
 /// Add the tasklist plugin to the parser
 pub fn add(md: &mut MarkdownIt) {
-    md.add_rule::<TasklistRule<false>>();
+    md.add_rule::<TasklistRule<false>>()
+        .after::<InlineParserRule>();
 }
 
 /// Add the tasklist plugin to the parser
 pub fn add_disabled(md: &mut MarkdownIt) {
-    md.add_rule::<TasklistRule<true>>();
+    md.add_rule::<TasklistRule<true>>()
+        .after::<InlineParserRule>();
 }
 
 #[derive(Debug)]
