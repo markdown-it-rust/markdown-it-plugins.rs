@@ -39,8 +39,8 @@ pub fn add_disabled(md: &mut MarkdownIt) {
 
 #[derive(Debug)]
 pub struct TodoCheckbox {
-    checked: bool,
-    disabled: bool,
+    pub checked: bool,
+    pub disabled: bool,
 }
 
 impl NodeValue for TodoCheckbox {
