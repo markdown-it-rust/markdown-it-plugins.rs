@@ -34,8 +34,8 @@ pub fn add(md: &mut MarkdownIt) {
 }
 
 #[derive(Debug)]
-struct FootnoteRefAnchor {
-    ref_ids: Vec<usize>,
+pub struct FootnoteRefAnchor {
+    pub ref_ids: Vec<usize>,
 }
 impl NodeValue for FootnoteRefAnchor {
     fn render(&self, _: &Node, fmt: &mut dyn markdown_it::Renderer) {

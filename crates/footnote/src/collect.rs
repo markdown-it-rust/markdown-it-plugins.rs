@@ -42,7 +42,7 @@ struct PlaceholderNode;
 impl NodeValue for PlaceholderNode {}
 
 #[derive(Debug)]
-struct FootnotesContainerNode;
+pub struct FootnotesContainerNode;
 impl NodeValue for FootnotesContainerNode {
     fn render(&self, node: &Node, fmt: &mut dyn markdown_it::Renderer) {
         let mut attrs = node.attrs.clone();
@@ -60,27 +60,6 @@ impl NodeValue for FootnotesContainerNode {
         fmt.cr();
         fmt.close("section");
         fmt.cr();
-    }
-}
-
-#[derive(Debug)]
-struct FootnoteRefAnchor {
-    ref_ids: Vec<usize>,
-}
-impl NodeValue for FootnoteRefAnchor {
-    fn render(&self, _: &Node, fmt: &mut dyn markdown_it::Renderer) {
-        for ref_id in self.ref_ids.iter() {
-            fmt.text(" ");
-            fmt.open(
-                "a",
-                &[
-                    ("id", format!("#fnref{}", ref_id)),
-                    ("class", String::from("footnote-backref")),
-                ],
-            );
-            fmt.text("↩");
-            fmt.close("a");
-        }
     }
 }
 
