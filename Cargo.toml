@@ -12,7 +12,9 @@ categories = ["text-processing", "parsing"]
 
 [workspace.dependencies]
 markdown-it = "0.5"
-testing = "0.33.13"
+regex       = ">= 1.0.0, < 2"
+once_cell   = ">= 1.0.1, < 2"
+testing     = "0.33"
 # possible other packages for testing that are not actually used currently
 # indoc, rtest, insta
 
