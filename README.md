@@ -8,6 +8,10 @@ Monorepo of plugins for [markdown-it.rs](https://crates.io/crates/markdown-it):
 
 More to come... (hopefully, many from [mdit-py-plugins](https://github.com/executablebooks/mdit-py-plugins))
 
+Also utility crates:
+
+- [github-slugger](crates/github_slugger/README.md)
+
 ## Development
 
 Feedback on the code is always welcome!
