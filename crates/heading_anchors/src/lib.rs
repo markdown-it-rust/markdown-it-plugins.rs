@@ -26,16 +26,21 @@
 use github_slugger::Slugger;
 use markdown_it::{
     parser::{core::CoreRule, extset::MarkdownItExt, inline::builtin::InlineParserRule},
-    plugins::cmark::block::{heading::ATXHeading, lheading::SetextHeader},
+    plugins::{
+        cmark::block::{heading::ATXHeading, lheading::SetextHeader},
+        html::html_inline::HtmlInline,
+    },
     MarkdownIt, Node, NodeValue,
 };
 
+/// Add the heading anchor plugin to MarkdownIt.
 pub fn add(md: &mut MarkdownIt) {
     md.ext.get_or_insert_default::<HeadingAnchorOptions>();
     md.add_rule::<AddHeadingAnchors>()
         .after::<InlineParserRule>();
 }
 
+/// Add the heading anchor plugin to MarkdownIt, with options.
 pub fn add_with_options(md: &mut MarkdownIt, options: HeadingAnchorOptions) {
     md.ext.insert(options);
     md.add_rule::<AddHeadingAnchors>()
@@ -43,6 +48,7 @@ pub fn add_with_options(md: &mut MarkdownIt, options: HeadingAnchorOptions) {
 }
 
 #[derive(Debug)]
+/// Where to add the anchor, within the heading children.
 pub enum AnchorPosition {
     Start,
     End,
@@ -50,6 +56,7 @@ pub enum AnchorPosition {
 }
 
 #[derive(Debug)]
+/// Options for the heading anchor plugin.
 pub struct HeadingAnchorOptions {
     /// Minimum heading level to add anchors to.
     pub min_level: u8,
@@ -85,12 +92,12 @@ impl Default for HeadingAnchorOptions {
 impl MarkdownItExt for HeadingAnchorOptions {}
 
 #[derive(Debug)]
-pub struct Permalink {
+/// AST node for a heading anchor
+pub struct HeadingAnchor {
     pub href: String,
     pub id: Option<String>,
-    pub inner_html: String,
 }
-impl NodeValue for Permalink {
+impl NodeValue for HeadingAnchor {
     fn render(&self, node: &Node, fmt: &mut dyn markdown_it::Renderer) {
         let mut attrs = node.attrs.clone();
         if let Some(id) = &self.id {
@@ -98,7 +105,7 @@ impl NodeValue for Permalink {
         }
         attrs.push(("href", format!("#{}", self.href)));
         fmt.open("a", &attrs);
-        fmt.text_raw(&self.inner_html);
+        fmt.contents(&node.children);
         fmt.close("a");
     }
 }
@@ -109,6 +116,8 @@ impl CoreRule for AddHeadingAnchors {
         let options = md.ext.get::<HeadingAnchorOptions>().unwrap();
         let mut slugger = Slugger::default();
         root.walk_mut(|node, _| {
+            // TODO should be able to halt recursion for paragraphs etc,
+            // that cannot contain headings
             if let Some(value) = node.cast::<ATXHeading>() {
                 if value.level < options.min_level || value.level > options.max_level {
                     return;
@@ -125,7 +134,7 @@ impl CoreRule for AddHeadingAnchors {
                 if options.id_on_heading {
                     node.attrs.push(("id", id.clone()));
                 }
-                let permalink = Permalink {
+                let anchor = HeadingAnchor {
                     href: id.clone(),
                     id: {
                         if options.id_on_heading {
@@ -134,10 +143,12 @@ impl CoreRule for AddHeadingAnchors {
                             Some(id)
                         }
                     },
-                    inner_html: options.inner_html.clone(),
                 };
-                let mut link_node = Node::new(permalink);
+                let mut link_node = Node::new(anchor);
                 link_node.attrs.push(("aria-hidden", String::from("true")));
+                link_node.children.push(Node::new(HtmlInline {
+                    content: options.inner_html.clone(),
+                }));
                 for class in &options.classes {
                     link_node.attrs.push(("class", class.clone()));
                 }
