@@ -25,19 +25,21 @@
 
 use github_slugger::Slugger;
 use markdown_it::{
-    parser::{core::CoreRule, extset::MarkdownItExt},
+    parser::{core::CoreRule, extset::MarkdownItExt, inline::builtin::InlineParserRule},
     plugins::cmark::block::{heading::ATXHeading, lheading::SetextHeader},
     MarkdownIt, Node, NodeValue,
 };
 
 pub fn add(md: &mut MarkdownIt) {
     md.ext.get_or_insert_default::<HeadingAnchorOptions>();
-    md.add_rule::<AddHeadingAnchors>();
+    md.add_rule::<AddHeadingAnchors>()
+        .after::<InlineParserRule>();
 }
 
 pub fn add_with_options(md: &mut MarkdownIt, options: HeadingAnchorOptions) {
     md.ext.insert(options);
-    md.add_rule::<AddHeadingAnchors>();
+    md.add_rule::<AddHeadingAnchors>()
+        .after::<InlineParserRule>();
 }
 
 #[derive(Debug)]
