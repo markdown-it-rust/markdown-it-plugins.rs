@@ -1,15 +1,15 @@
 mod ctype;
-mod email;
-mod url;
+pub mod email;
+pub mod url;
 pub(crate) mod utils;
-mod www;
+pub mod www;
 
 /// Match an autolink from the start of the string.
 /// Return the link and the number of chars to skip.
 pub fn match_start(contents: &str) -> Option<(String, usize)> {
     let bytes_contents = contents.as_bytes();
 
-    if let Some((url, link_end)) = url::match_url(bytes_contents) {
+    if let Some((url, link_end)) = url::match_http(bytes_contents) {
         return Some((url, link_end));
     }
     if let Some((url, link_end)) = www::match_www(bytes_contents) {
@@ -29,7 +29,7 @@ pub fn match_index(contents: &str, index: usize) -> Option<(String, usize)> {
         let prev_char = contents.chars().nth(index - 1)?;
 
         // All such recognized autolinks can only come at the beginning of a line, after whitespace, or any of the delimiting characters *, _, ~, and (.
-        if !matches!(prev_char, ' ' | '\t' | '\r' | '\n' | '*' | '_' | '~' | '(') {
+        if !check_prev(prev_char) {
             return None;
         }
     }
@@ -38,6 +38,11 @@ pub fn match_index(contents: &str, index: usize) -> Option<(String, usize)> {
     let (link, skip_len) = match_start(start_contents)?;
 
     Some((link, skip_len))
+}
+
+/// Test if a character is a valid preceding character for an autolink.
+pub fn check_prev(prev: char) -> bool {
+    matches!(prev, ' ' | '\t' | '\r' | '\n' | '*' | '_' | '~' | '(')
 }
 
 #[cfg(test)]
@@ -54,10 +59,9 @@ mod tests {
     #[case("example.com", None)]
     #[case("www.", None)]
     #[case("@example.com", None)]
-    // url matches
+    // http matches
     #[case("http://localhost:3000", Some(("http://localhost:3000", 21)))]
     #[case("https://localhost:3000", Some(("https://localhost:3000", 22)))]
-    #[case("ftp://localhost:3000", Some(("ftp://localhost:3000", 20)))]
     #[case("http://Á.com", Some(("http://Á.com", 12)))]
     #[case("https://www.wolframalpha.com/input/?i=x^2+(y-(x^2)^(1/3))^2=1", Some(("https://www.wolframalpha.com/input/?i=x^2+(y-(x^2)^(1/3))^2=1", 61)))]
     // www matches

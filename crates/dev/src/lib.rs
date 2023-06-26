@@ -82,7 +82,7 @@ pub fn assert_no_diff(f: FixtureFile, actual: &str) {
                 f.file,
                 format!(
                     "{}\n......\n\n{}\n\n......\n\n{}\n",
-                    f.title,
+                    f.title.trim_end(),
                     f.input,
                     actual.trim_end()
                 ),

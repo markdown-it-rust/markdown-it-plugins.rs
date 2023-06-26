@@ -6,12 +6,14 @@ Monorepo of plugins for [markdown-it.rs](https://crates.io/crates/markdown-it):
 - [markdown-it-footnote](crates/footnote/README.md)
 - [markdown-it-tasklist](crates/tasklist/README.md)
 - [markdown-it-heading-anchors](crates/heading_anchors/README.md)
+- [markdown-it-autolink](crates/autolink/README.md)
 
 More to come... (hopefully, many from [mdit-py-plugins](https://github.com/executablebooks/mdit-py-plugins))
 
 Also utility crates:
 
 - [github-slugger](crates/github_slugger/README.md)
+- [gfm-autolinks](crates/gfm_autolinks/README.md)
 
 ## Development
 
