@@ -42,6 +42,7 @@ fn is_valid_hostchar(ch: char) -> bool {
     !ch.is_whitespace() && !ch.is_punctuation()
 }
 
+/// Ensure URL is correctly terminated by a delimiter.
 pub fn autolink_delim(data: &[u8], mut link_end: usize) -> usize {
     static LINK_END_ASSORTMENT: Lazy<[bool; 256]> = Lazy::new(|| {
         let mut sc = [false; 256];

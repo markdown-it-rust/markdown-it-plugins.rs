@@ -5,22 +5,19 @@ use crate::{
     utils::{autolink_delim, check_domain},
 };
 
-/// Match a URL link starting with protocol `http`/`https`/`ftp`,
+/// Match a URL link starting with protocol `http`/`https`,
 /// from the start of the string.
 /// Return the link and the number of chars to skip.
-pub fn match_url(contents: &[u8]) -> Option<(String, usize)> {
+pub fn match_http(contents: &[u8]) -> Option<(String, usize)> {
     let prefix_len: usize;
     if contents.starts_with(b"http://") {
         prefix_len = 7;
     } else if contents.starts_with(b"https://") {
         prefix_len = 8;
-    } else if contents.starts_with(b"ftp://") {
-        prefix_len = 6;
     } else {
         return None;
     }
 
-    // TODO check this doesn't panic if nothing after prefix
     let mut link_end = match check_domain(&contents[prefix_len..], true) {
         None => return None,
         Some(link_end) => link_end,

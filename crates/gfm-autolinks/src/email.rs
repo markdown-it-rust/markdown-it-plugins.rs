@@ -1,10 +1,7 @@
 use once_cell::sync::Lazy;
 use std::str;
 
-use crate::{
-    ctype::{isalnum, isalpha},
-    utils::autolink_delim,
-};
+use crate::ctype::{isalnum, isalpha};
 
 enum Protocol {
     Mailto,
@@ -25,6 +22,34 @@ pub fn match_email(contents: &[u8]) -> Option<(String, usize)> {
         pos += 5;
     }
 
+    match_any_email(contents, pos, protocol)
+}
+
+/// Match an email address starting with protocol `mailto:`
+/// Return the link and the number of chars to skip.
+pub fn match_mailto(contents: &[u8]) -> Option<(String, usize)> {
+    if !contents.starts_with(b"mailto:") {
+        return None;
+    }
+    match_any_email(contents, 7, Protocol::Mailto)
+}
+
+/// Match an email address starting with protocol `xmpp:`
+/// Return the link and the number of chars to skip.
+pub fn match_xmpp(contents: &[u8]) -> Option<(String, usize)> {
+    if !contents.starts_with(b"xmpp:") {
+        return None;
+    }
+    match_any_email(contents, 5, Protocol::Xmpp)
+}
+
+/// Match an email address starting with no Protocol
+/// Return the link and the number of chars to skip.
+pub fn match_bare(contents: &[u8]) -> Option<(String, usize)> {
+    match_any_email(contents, 0, Protocol::None)
+}
+
+fn match_any_email(contents: &[u8], mut pos: usize, protocol: Protocol) -> Option<(String, usize)> {
     let size = contents.len();
 
     while pos < size {
@@ -78,10 +103,8 @@ pub fn match_email(contents: &[u8]) -> Option<(String, usize)> {
         return None;
     }
 
-    link_end = autolink_delim(contents, link_end);
-    if link_end == 0 {
-        return None;
-    }
+    // Note here previously `autolink_delim` was run,
+    // but I don't think it's necessary for email addresses.
 
     let mut url = match protocol {
         Protocol::Mailto => "".to_string(),
