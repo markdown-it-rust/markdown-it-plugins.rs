@@ -18,5 +18,5 @@ gfm-autolinks = { path = "../gfm-autolinks", version = "0.1" }
 
 [dev-dependencies]
 dev = { path = "../dev" }
-rstest = "0.17.0"
+rstest = { workspace = true }
 testing = { workspace = true }

@@ -17,4 +17,4 @@ once_cell = { workspace = true }
 unicode_categories = "0.1"
 
 [dev-dependencies]
-rstest = "0.17"
+rstest = { workspace = true }
