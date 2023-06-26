@@ -1,393 +1,146 @@
-use crate::ctype::{isalnum, isalpha, isspace};
-// use crate::nodes::{AstNode, NodeLink, NodeValue};
-// use crate::parser::inlines::make_inline;
-// use typed_arena::Arena;
-use once_cell::sync::Lazy;
-use std::str;
-use unicode_categories::UnicodeCategories;
-
 mod ctype;
+mod email;
+mod url;
+pub(crate) mod utils;
+mod www;
 
-#[derive(Debug)]
-pub struct Link {
-    pub url: String,
-    pub text: String,
-}
+/// Match an autolink from the start of the string.
+/// Return the link and the number of chars to skip.
+pub fn match_start(contents: &str) -> Option<(String, usize)> {
+    let bytes_contents = contents.as_bytes();
 
-pub fn process(
-    contents_str: &str,
-    // relaxed: bool,
-) -> Option<(Link, usize)> {
-    let contents = contents_str.as_bytes();
-    let len = contents.len();
-    let mut i = 0;
-
-    while i < len {
-        let mut post_org = None;
-        // let mut bracket_opening = 0;
-
-        while i < len {
-            
-            // cmark-gfm ignores links inside brackets, such as `[[http://example.com]`
-            // if !relaxed {
-            //     match contents[i] {
-            //         b'[' => {
-            //             bracket_opening += 1;
-            //         }
-            //         b']' => {
-            //             bracket_opening -= 1;
-            //         }
-            //         _ => (),
-            //     }
-
-            //     if bracket_opening > 0 {
-            //         i += 1;
-            //         continue;
-            //     }
-            // }
-
-            match contents[i] {
-                b':' => {
-                    post_org = url_match(contents, i);
-                    if post_org.is_some() {
-                        break;
-                    }
-                }
-                b'w' => {
-                    post_org = www_match(contents, i);
-                    if post_org.is_some() {
-                        break;
-                    }
-                }
-                b'@' => {
-                    post_org = email_match(contents, i);
-                    if post_org.is_some() {
-                        break;
-                    }
-                }
-                _ => (),
-            }
-            i += 1;
-        }
-
-        if let Some((link, reverse, _skip)) = post_org {
-            // i -= reverse;
-            // node.insert_after(link);
-            // if i + skip < len {
-            //     let remain = str::from_utf8(&contents[i + skip..]).unwrap();
-            //     assert!(!remain.is_empty());
-            //     link.insert_after(make_inline(
-            //         arena,
-            //         NodeValue::Text(remain.to_string()),
-            //         (0, 1, 0, 1).into(),
-            //     ));
-            // }
-            // contents_str.truncate(i);
-            return Some((link, i - reverse));
-        }
+    if let Some((url, link_end)) = url::match_url(bytes_contents) {
+        return Some((url, link_end));
+    }
+    if let Some((url, link_end)) = www::match_www(bytes_contents) {
+        return Some((url, link_end));
+    }
+    if let Some((email, link_end)) = email::match_email(bytes_contents) {
+        return Some((email, link_end));
     }
     None
 }
 
-fn www_match(
-    contents: &[u8],
-    i: usize,
-) -> Option<(Link, usize, usize)> {
-    static WWW_DELIMS: Lazy<[bool; 256]> = Lazy::new(|| {
-        let mut sc = [false; 256];
-        for c in &[b'*', b'_', b'~', b'(', b'['] {
-            sc[*c as usize] = true;
-        }
-        sc
-    });
+/// Match an autolink from an index in the string (invalid index returns None).
+/// Return the link and the number of chars to skip (from index).
+/// Note, this enforces the rule that autolinks can only come at the beginning of a line, after whitespace, or any of the delimiting characters `*`, `_`, `~`, and `(`.
+pub fn match_index(contents: &str, index: usize) -> Option<(String, usize)> {
+    if index > 0 {
+        let prev_char = contents.chars().nth(index - 1)?;
 
-    if i > 0 && !isspace(contents[i - 1]) && !WWW_DELIMS[contents[i - 1] as usize] {
-        return None;
-    }
-
-    if !contents[i..].starts_with(b"www.") {
-        return None;
-    }
-
-    let mut link_end = match check_domain(&contents[i..], false) {
-        None => return None,
-        Some(link_end) => link_end,
-    };
-
-    while i + link_end < contents.len() && !isspace(contents[i + link_end]) {
-        link_end += 1;
-    }
-
-    link_end = autolink_delim(&contents[i..], link_end);
-
-    let mut url = "http://".to_string();
-    url.push_str(str::from_utf8(&contents[i..link_end + i]).unwrap());
-
-    let link = Link {
-        url,
-        text: str::from_utf8(&contents[i..link_end + i])
-            .unwrap()
-            .to_string(),
-    };
-    Some((link, 0, link_end))
-}
-
-fn check_domain(data: &[u8], allow_short: bool) -> Option<usize> {
-    let mut np = 0;
-    let mut uscore1 = 0;
-    let mut uscore2 = 0;
-
-    for (i, c) in unsafe { str::from_utf8_unchecked(data) }.char_indices() {
-        if c == '_' {
-            uscore2 += 1;
-        } else if c == '.' {
-            uscore1 = uscore2;
-            uscore2 = 0;
-            np += 1;
-        } else if !is_valid_hostchar(c) && c != '-' {
-            if uscore1 == 0 && uscore2 == 0 && (allow_short || np > 0) {
-                return Some(i);
-            }
+        // All such recognized autolinks can only come at the beginning of a line, after whitespace, or any of the delimiting characters *, _, ~, and (.
+        if !matches!(prev_char, ' ' | '\t' | '\r' | '\n' | '*' | '_' | '~' | '(') {
             return None;
         }
     }
 
-    if (uscore1 > 0 || uscore2 > 0) && np <= 10 {
-        None
-    } else if allow_short || np > 0 {
-        Some(data.len())
-    } else {
-        None
-    }
+    let start_contents = contents.get(index..)?;
+    let (link, skip_len) = match_start(start_contents)?;
+
+    Some((link, skip_len))
 }
-
-fn is_valid_hostchar(ch: char) -> bool {
-    !ch.is_whitespace() && !ch.is_punctuation()
-}
-
-fn autolink_delim(data: &[u8], mut link_end: usize) -> usize {
-    static LINK_END_ASSORTMENT: Lazy<[bool; 256]> = Lazy::new(|| {
-        let mut sc = [false; 256];
-        for c in &[
-            b'?', b'!', b'.', b',', b':', b'*', b'_', b'~', b'\'', b'"', b'[', b']',
-        ] {
-            sc[*c as usize] = true;
-        }
-        sc
-    });
-
-    for (i, &b) in data.iter().enumerate().take(link_end) {
-        if b == b'<' {
-            link_end = i;
-            break;
-        }
-    }
-
-    while link_end > 0 {
-        let cclose = data[link_end - 1];
-
-        let copen = if cclose == b')' { Some(b'(') } else { None };
-
-        if LINK_END_ASSORTMENT[cclose as usize] {
-            link_end -= 1;
-        } else if cclose == b';' {
-            let mut new_end = link_end - 2;
-
-            while new_end > 0 && isalpha(data[new_end]) {
-                new_end -= 1;
-            }
-
-            if new_end < link_end - 2 && data[new_end] == b'&' {
-                link_end = new_end;
-            } else {
-                link_end -= 1;
-            }
-        } else if let Some(copen) = copen {
-            let mut opening = 0;
-            let mut closing = 0;
-            for &b in data.iter().take(link_end) {
-                if b == copen {
-                    opening += 1;
-                } else if b == cclose {
-                    closing += 1;
-                }
-            }
-
-            if closing <= opening {
-                break;
-            }
-
-            link_end -= 1;
-        } else {
-            break;
-        }
-    }
-
-    link_end
-}
-
-fn url_match(
-    contents: &[u8],
-    i: usize,
-) -> Option<(Link, usize, usize)> {
-    const SCHEMES: [&[u8]; 3] = [b"http", b"https", b"ftp"];
-
-    let size = contents.len();
-
-    if size - i < 4 || contents[i + 1] != b'/' || contents[i + 2] != b'/' {
-        return None;
-    }
-
-    let mut rewind = 0;
-    while rewind < i && isalpha(contents[i - rewind - 1]) {
-        rewind += 1;
-    }
-
-    let cond = |s: &&[u8]| size - i + rewind >= s.len() && &&contents[i - rewind..i] == s;
-    if !SCHEMES.iter().any(cond) {
-        return None;
-    }
-
-    let mut link_end = match check_domain(&contents[i + 3..], true) {
-        None => return None,
-        Some(link_end) => link_end,
-    };
-
-    while link_end < size - i && !isspace(contents[i + link_end]) {
-        link_end += 1;
-    }
-
-    link_end = autolink_delim(&contents[i..], link_end);
-
-    let url = str::from_utf8(&contents[i - rewind..i + link_end])
-        .unwrap()
-        .to_string();
-
-    let link = Link {
-        url: url.clone(),
-        text: url,
-    };
-    Some((link, rewind, rewind + link_end))
-}
-
-fn email_match(
-    // arena: &'a Arena<AstNode<'a>>,
-    contents: &[u8],
-    i: usize,
-) -> Option<(Link, usize, usize)> {
-    static EMAIL_OK_SET: Lazy<[bool; 256]> = Lazy::new(|| {
-        let mut sc = [false; 256];
-        for c in &[b'.', b'+', b'-', b'_'] {
-            sc[*c as usize] = true;
-        }
-        sc
-    });
-
-    let size = contents.len();
-
-    let mut auto_mailto = true;
-    let mut is_xmpp = false;
-    let mut rewind = 0;
-
-    while rewind < i {
-        let c = contents[i - rewind - 1];
-
-        if isalnum(c) || EMAIL_OK_SET[c as usize] {
-            rewind += 1;
-            continue;
-        }
-
-        if c == b':' {
-            if validate_protocol("mailto", contents, i - rewind - 1) {
-                auto_mailto = false;
-                rewind += 1;
-                continue;
-            }
-
-            if validate_protocol("xmpp", contents, i - rewind - 1) {
-                is_xmpp = true;
-                auto_mailto = false;
-                rewind += 1;
-                continue;
-            }
-        }
-
-        break;
-    }
-
-    if rewind == 0 {
-        return None;
-    }
-
-    let mut link_end = 1;
-    let mut np = 0;
-
-    while link_end < size - i {
-        let c = contents[i + link_end];
-
-        if isalnum(c) {
-            // empty
-        } else if c == b'@' {
-            return None;
-        } else if c == b'.' && link_end < size - i - 1 && isalnum(contents[i + link_end + 1]) {
-            np += 1;
-        } else if c == b'/' && is_xmpp {
-            // xmpp allows a `/` in the url
-        } else if c != b'-' && c != b'_' {
-            break;
-        }
-
-        link_end += 1;
-    }
-
-    if link_end < 2
-        || np == 0
-        || (!isalpha(contents[i + link_end - 1]) && contents[i + link_end - 1] != b'.')
-    {
-        return None;
-    }
-
-    link_end = autolink_delim(&contents[i..], link_end);
-    if link_end == 0 {
-        return None;
-    }
-
-    let mut url = if auto_mailto {
-        "mailto:".to_string()
-    } else {
-        "".to_string()
-    };
-    let text = str::from_utf8(&contents[i - rewind..link_end + i]).unwrap();
-    url.push_str(text);
-
-    let link = Link {
-        url,
-        text: text.to_string(),
-    };
-    Some((link, rewind, rewind + link_end))
-}
-
-fn validate_protocol(protocol: &str, contents: &[u8], cursor: usize) -> bool {
-    let size = contents.len();
-    let mut rewind = 0;
-
-    while rewind < cursor && isalpha(contents[cursor - rewind - 1]) {
-        rewind += 1;
-    }
-
-    size - cursor + rewind >= protocol.len()
-        && &contents[cursor - rewind..cursor] == protocol.as_bytes()
-}
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_basic() {
-        let p = process("a foo@bar.baz");
-        println!("{:?}", p);
-        panic!("hallo")
+    use rstest::rstest;
+
+    #[rstest]
+    // non-matches
+    #[case("", None)]
+    #[case(" ", None)]
+    #[case("foo", None)]
+    #[case("example.com", None)]
+    #[case("www.", None)]
+    #[case("@example.com", None)]
+    // url matches
+    #[case("http://localhost:3000", Some(("http://localhost:3000", 21)))]
+    #[case("https://localhost:3000", Some(("https://localhost:3000", 22)))]
+    #[case("ftp://localhost:3000", Some(("ftp://localhost:3000", 20)))]
+    #[case("http://Á.com", Some(("http://Á.com", 12)))]
+    #[case("https://www.wolframalpha.com/input/?i=x^2+(y-(x^2)^(1/3))^2=1", Some(("https://www.wolframalpha.com/input/?i=x^2+(y-(x^2)^(1/3))^2=1", 61)))]
+    // www matches
+    #[case("www.example.com", Some(("http://www.example.com", 15)))]
+    #[case("www.Á.com", Some(("http://www.Á.com", 9)))]
+    // email matches
+    #[case("john@example.com", Some(("mailto:john@example.com", 16)))]
+    #[case("mailto:@example.com", Some(("mailto:@example.com", 19)))]
+    #[case("xmpp:john@example.com", Some(("xmpp:john@example.com", 21)))]
+    fn test_match_start(#[case] input: &str, #[case] expected: Option<(&str, i32)>) {
+        assert_eq!(
+            match_start(input),
+            expected.and_then(|a| Some((a.0.to_string(), a.1 as usize)))
+        );
+    }
+
+    #[rstest]
+    // 622
+    #[case("www.commonmark.org", Some(("http://www.commonmark.org", 18)))]
+    // 623
+    #[case("www.commonmark.org/help for more information.", Some(("http://www.commonmark.org/help", 23)))]
+    // 624
+    #[case("www.commonmark.org.", Some(("http://www.commonmark.org", 18)))]
+    #[case("www.commonmark.org/a.b.", Some(("http://www.commonmark.org/a.b", 22)))]
+    // 625
+    #[case("www.google.com/search?q=Markup+(business)", Some(("http://www.google.com/search?q=Markup+(business)", 41)))]
+    #[case("www.google.com/search?q=Markup+(business)))", Some(("http://www.google.com/search?q=Markup+(business)", 41)))]
+    // 626
+    #[case("www.google.com/search?q=(business))+ok", Some(("http://www.google.com/search?q=(business))+ok", 38)))]
+    // 627
+    #[case("www.google.com/search?q=commonmark&hl=en", Some(("http://www.google.com/search?q=commonmark&hl=en", 40)))]
+    #[case("www.google.com/search?q=commonmark&hl;", Some(("http://www.google.com/search?q=commonmark", 34)))]
+    // 628
+    #[case("www.commonmark.org/he<lp", Some(("http://www.commonmark.org/he", 21)))]
+    // 629
+    #[case("http://commonmark.org", Some(("http://commonmark.org", 21)))]
+    #[case("https://encrypted.google.com/search?q=Markup+(business))", Some(("https://encrypted.google.com/search?q=Markup+(business)", 55)))]
+    // 630
+    #[case("foo@bar.baz", Some(("mailto:foo@bar.baz", 11)))]
+    // 631
+    #[case("hello@mail+xyz.example", None)]
+    #[case("hello+xyz@mail.example", Some(("mailto:hello+xyz@mail.example", 22)))]
+    // 632
+    #[case("a.b-c_d@a.b", Some(("mailto:a.b-c_d@a.b", 11)))]
+    #[case("a.b-c_d@a.b.", Some(("mailto:a.b-c_d@a.b", 11)))]
+    #[case("a.b-c_d@a.b-", None)]
+    #[case("a.b-c_d@a.b_", None)]
+    // 633
+    #[case("mailto:foo@bar.baz", Some(("mailto:foo@bar.baz", 18)))]
+    #[case("mailto:a.b-c_d@a.b", Some(("mailto:a.b-c_d@a.b", 18)))]
+    #[case("mailto:a.b-c_d@a.b.", Some(("mailto:a.b-c_d@a.b", 18)))]
+    #[case("mailto:a.b-c_d@a.b/", Some(("mailto:a.b-c_d@a.b", 18)))]
+    #[case("mailto:a.b-c_d@a.b-", None)]
+    #[case("mailto:a.b-c_d@a.b_", None)]
+    #[case("xmpp:foo@bar.baz", Some(("xmpp:foo@bar.baz", 16)))]
+    #[case("xmpp:foo@bar.baz.", Some(("xmpp:foo@bar.baz", 16)))]
+    // 634
+    #[case("xmpp:foo@bar.baz/txt", Some(("xmpp:foo@bar.baz/txt", 20)))]
+    #[case("xmpp:foo@bar.baz/txt@bin", Some(("xmpp:foo@bar.baz/txt@bin", 24)))]
+    #[case("xmpp:foo@bar.baz/txt@bin.com", Some(("xmpp:foo@bar.baz/txt@bin.com", 28)))]
+    // 635
+    #[case("xmpp:foo@bar.baz/txt/bin", Some(("xmpp:foo@bar.baz/txt", 20)))]
+    fn test_spec(#[case] input: &str, #[case] expected: Option<(&str, i32)>) {
+        assert_eq!(
+            match_start(input),
+            expected.and_then(|a| Some((a.0.to_string(), a.1 as usize)))
+        );
+    }
+
+    #[rstest]
+    #[case("www.commonmark.org", 0, Some(("http://www.commonmark.org", 18)))]
+    #[case(" www.commonmark.org", 0, None)]
+    #[case("www.commonmark.org", 100, None)]
+    #[case(" www.commonmark.org", 1, Some(("http://www.commonmark.org", 18)))]
+    #[case("[www.commonmark.org", 1, None)]
+    fn test_match_index(
+        #[case] input: &str,
+        #[case] index: usize,
+        #[case] expected: Option<(&str, i32)>,
+    ) {
+        assert_eq!(
+            match_index(input, index),
+            expected.and_then(|a| Some((a.0.to_string(), a.1 as usize)))
+        );
     }
 }
