@@ -13,6 +13,10 @@ Integration with other Commonmark syntax
 
 *https://example.com*
 
+awww.example.com
+ahttps://example.com
+amailto:bob@example.com
+
 ......
 
 <h1 data-sourcepos="1:1-1:32">Heading <a data-sourcepos="1:11-1:32" href="http://www.example.com">http://www.example.com</a></h1>
@@ -22,3 +26,6 @@ Integration with other Commonmark syntax
 <p data-sourcepos="7:1-7:39"><a data-sourcepos="7:1-7:24" href="http://www.example.com">http://www.example.com</a>www.example.com</p>
 <p data-sourcepos="9:1-9:19"><strong data-sourcepos="9:1-9:19"><a data-sourcepos="9:3-9:17" href="http://www.example.com">www.example.com</a></strong></p>
 <p data-sourcepos="11:1-11:21"><em data-sourcepos="11:1-11:21"><a data-sourcepos="11:2-11:20" href="https://example.com">https://example.com</a></em></p>
+<p data-sourcepos="13:1-15:23">awww.example.com
+ahttps://example.com
+amailto:bob@example.com</p>

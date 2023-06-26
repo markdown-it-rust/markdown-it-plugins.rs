@@ -3,7 +3,7 @@ use std::str;
 
 use crate::ctype::{isalnum, isalpha};
 
-enum Protocol {
+pub enum Protocol {
     Mailto,
     Xmpp,
     None,
@@ -49,7 +49,11 @@ pub fn match_bare(contents: &[u8]) -> Option<(String, usize)> {
     match_any_email(contents, 0, Protocol::None)
 }
 
-fn match_any_email(contents: &[u8], mut pos: usize, protocol: Protocol) -> Option<(String, usize)> {
+pub fn match_any_email(
+    contents: &[u8],
+    mut pos: usize,
+    protocol: Protocol,
+) -> Option<(String, usize)> {
     let size = contents.len();
 
     while pos < size {

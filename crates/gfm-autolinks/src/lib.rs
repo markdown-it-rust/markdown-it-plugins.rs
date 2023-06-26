@@ -1,7 +1,7 @@
 mod ctype;
-pub(crate) mod utils;
 pub mod email;
 pub mod url;
+pub(crate) mod utils;
 pub mod www;
 
 /// Match an autolink from the start of the string.
