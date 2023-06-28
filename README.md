@@ -1,5 +1,9 @@
 # markdown-it-plugins.rs
 
+<p align="center">
+  <img alt="markdown-it-plugins icon" src="https://raw.githubusercontent.com/chrisjsewell/markdown-it-plugins.rs/main/docs/_static/icon.svg">
+</p>
+
 Monorepo of plugins for [markdown-it.rs](https://crates.io/crates/markdown-it):
 
 - [markdown-it-front-matter](crates/front_matter/README.md)
