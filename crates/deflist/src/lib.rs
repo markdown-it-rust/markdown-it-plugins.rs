@@ -28,7 +28,7 @@ pub fn add(md: &mut MarkdownIt) {
 }
 
 #[derive(Debug)]
-struct DefinitionList;
+pub struct DefinitionList;
 impl NodeValue for DefinitionList {
     fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
         fmt.cr();
@@ -42,7 +42,7 @@ impl NodeValue for DefinitionList {
 }
 
 #[derive(Debug)]
-struct DefinitionTerm;
+pub struct DefinitionTerm;
 impl NodeValue for DefinitionTerm {
     fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
         fmt.cr();
@@ -54,7 +54,7 @@ impl NodeValue for DefinitionTerm {
 }
 
 #[derive(Debug)]
-struct DefinitionDescription;
+pub struct DefinitionDescription;
 impl NodeValue for DefinitionDescription {
     fn render(&self, node: &Node, fmt: &mut dyn Renderer) {
         fmt.cr();
@@ -66,7 +66,7 @@ impl NodeValue for DefinitionDescription {
 }
 
 /// An extension for the block subparser.
-struct DefinitionListScanner;
+pub struct DefinitionListScanner;
 
 impl BlockRule for DefinitionListScanner {
     fn check(state: &mut BlockState) -> Option<()> {
