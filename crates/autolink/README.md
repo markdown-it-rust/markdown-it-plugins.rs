@@ -7,9 +7,9 @@ A [markdown-it.rs](https://crates.io/crates/markdown-it) plugin that implements 
 ## Usage
 
 ```rust
-let parser = &mut markdown_it::MarkdownIt::new();
+let md = &mut markdown_it::MarkdownIt::new();
 markdown_it::plugins::cmark::add(md);
-markdown_it_autolink::add(parser);
-parser.parse("www.example.com").render();
+markdown_it_autolink::add(md);
+md.parse("www.example.com").render();
 // <p><a href="http://www.example.com">www.example.com</a></p>
 ```

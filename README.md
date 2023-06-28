@@ -7,6 +7,7 @@ Monorepo of plugins for [markdown-it.rs](https://crates.io/crates/markdown-it):
 - [markdown-it-tasklist](crates/tasklist/README.md)
 - [markdown-it-heading-anchors](crates/heading_anchors/README.md)
 - [markdown-it-autolink](crates/autolink/README.md)
+- [markdown-it-deflist](crates/deflist/README.md)
 
 More to come... (hopefully, many from [mdit-py-plugins](https://github.com/executablebooks/mdit-py-plugins))
 
@@ -30,3 +31,12 @@ pre-commit run --all
 
 Use [cargo-release](https://github.com/crate-ci/cargo-release) to release.
 (maybe move to cargo-smart-release in the future)
+
+## Notes
+
+For translating markdown-it plugins to rust, here are some useful notes:
+
+- `state.bMarks[startLine] + state.tShift[startLine]` is equivalent to `state.line_offsets[line].first_nonspace`
+- `state.eMarks[startLine]` is equivalent to `state.line_offsets[line].line_end`
+- `state.sCount[line]` is equivalent to `state.line_offsets[line].indent_nonspace`
+- `state.sCount[line] - state.blkIndent` is equivalent to `state.line_indent(state.line)`

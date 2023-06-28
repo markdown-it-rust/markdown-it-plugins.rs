@@ -4,8 +4,7 @@
 
 A [markdown-it.rs](https://crates.io/crates/markdown-it) plugin to process footnotes.
 
-It is based on the
-`pandoc definition <http://johnmacfarlane.net/pandoc/README.html#footnotes>`__:
+It is based on the [pandoc definition](http://johnmacfarlane.net/pandoc/README.html#footnotes):
 
 ```md
 Normal footnote:
