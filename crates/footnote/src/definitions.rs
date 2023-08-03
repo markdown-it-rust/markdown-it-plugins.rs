@@ -58,7 +58,6 @@ struct FootnoteDefinitionScanner;
 
 impl FootnoteDefinitionScanner {
     fn is_def(state: &mut BlockState) -> Option<(String, usize)> {
-
         if state.line_indent(state.line) >= state.md.max_indent {
             return None;
         }

@@ -70,7 +70,6 @@ pub struct DefinitionListScanner;
 
 impl BlockRule for DefinitionListScanner {
     fn check(state: &mut BlockState) -> Option<()> {
-
         if state.line_indent(state.line) >= state.md.max_indent {
             return None;
         }
@@ -85,7 +84,6 @@ impl BlockRule for DefinitionListScanner {
     }
 
     fn run(state: &mut BlockState) -> Option<(Node, usize)> {
-
         if state.line_indent(state.line) >= state.md.max_indent {
             return None;
         }
