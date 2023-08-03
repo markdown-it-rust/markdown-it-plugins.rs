@@ -12,6 +12,7 @@ Monorepo of plugins for [markdown-it.rs](https://crates.io/crates/markdown-it):
 - [markdown-it-heading-anchors](crates/heading_anchors/README.md)
 - [markdown-it-autolink](crates/autolink/README.md)
 - [markdown-it-deflist](crates/deflist/README.md)
+- [markdown-it-gfm](crates/gfm/README.md)
 
 More to come... (hopefully, many from [mdit-py-plugins](https://github.com/executablebooks/mdit-py-plugins))
 

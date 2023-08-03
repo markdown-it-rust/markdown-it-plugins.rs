@@ -1,0 +1,23 @@
+[package]
+name = "markdown-it-gfm"
+version = "0.0.0"
+description = "A markdown-it plugin for parsing definition lists"
+readme = "README.md"
+license = "Apache-2.0"
+authors = { workspace = true }
+repository = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+edition = { workspace = true }
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+markdown-it = { workspace = true }
+markdown-it-tasklist = { path="../tasklist", version = "0.2.0" }
+markdown-it-autolink = { path="../autolink", version = "0.2.0" }
+markdown-it-heading-anchors = { path="../heading_anchors", version = "0.3.0" }
+
+[dev-dependencies]
+dev = { path = "../dev" }
+testing = { workspace = true }
