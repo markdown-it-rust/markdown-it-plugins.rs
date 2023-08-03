@@ -11,7 +11,7 @@ keywords = ["markdown", "markdown-it"]
 categories = ["text-processing", "parsing"]
 
 [workspace.dependencies]
-markdown-it = "0.5"
+markdown-it =  { version = "0.6", default-features = false }
 regex       = ">= 1.0.0, < 2"
 once_cell   = ">= 1.0.1, < 2"
 testing     = "0.33"
