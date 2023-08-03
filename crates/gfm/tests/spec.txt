@@ -5957,7 +5957,7 @@ references and their corresponding code points.
 &frac34; &HilbertSpace; &DifferentialD;
 &ClockwiseContourIntegral; &ngE;
 .
-<p>  &amp; © Æ Ď
+<p>  &amp; © Æ Ď
 ¾ ℋ ⅆ
 ∲ ≧̸</p>
 ````````````````````````````````
