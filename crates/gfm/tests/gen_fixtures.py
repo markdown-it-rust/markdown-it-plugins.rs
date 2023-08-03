@@ -33,7 +33,7 @@ if __name__ == "__main__":
     for i, (md, html) in enumerate(tests, 1):
         (Path(__file__).parent / "fixtures").mkdir(exist_ok=True)
         filename = f"spec_{i:03}.md"
-        if i in (491, 620, 621):
+        if i in (491, 617, 620, 621):
             # these examples clash with the GFM extensions
             continue
         md_text = '\n'.join(md)
