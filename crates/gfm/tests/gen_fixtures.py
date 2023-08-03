@@ -1,5 +1,7 @@
 """Simple script to generate the separate test fixtures from the full spec.txt file.
 
+From: https://github.com/github/cmark-gfm/blob/master/test/spec.txt
+
 Note: https://github.com/github/cmark-gfm/issues/288
 """
 from pathlib import Path
