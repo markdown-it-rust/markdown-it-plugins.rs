@@ -70,8 +70,8 @@ pub struct DefinitionListScanner;
 
 impl BlockRule for DefinitionListScanner {
     fn check(state: &mut BlockState) -> Option<()> {
-        // if it's indented more than 3 spaces, it should be a code block
-        if state.line_indent(state.line) >= 4 {
+
+        if state.line_indent(state.line) >= state.md.max_indent {
             return None;
         }
 
@@ -85,8 +85,8 @@ impl BlockRule for DefinitionListScanner {
     }
 
     fn run(state: &mut BlockState) -> Option<(Node, usize)> {
-        // if it's indented more than 3 spaces, it should be a code block
-        if state.line_indent(state.line) >= 4 {
+
+        if state.line_indent(state.line) >= state.md.max_indent {
             return None;
         }
 
