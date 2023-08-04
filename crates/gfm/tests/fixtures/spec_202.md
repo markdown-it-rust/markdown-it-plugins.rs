@@ -1,0 +1,31 @@
+Example 202
+......
+
+| abc | def |
+| --- | --- |
+| bar | baz |
+bar
+
+bar
+
+......
+
+<table>
+<thead>
+<tr>
+<th>abc</th>
+<th>def</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bar</td>
+<td>baz</td>
+</tr>
+<tr>
+<td>bar</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>bar</p>
