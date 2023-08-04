@@ -17,6 +17,7 @@ markdown-it = { workspace = true }
 markdown-it-tasklist = { path="../tasklist", version = "0.2.0" }
 markdown-it-autolink = { path="../autolink", version = "0.2.0" }
 markdown-it-heading-anchors = { path="../heading_anchors", version = "0.3.0" }
+regex = { workspace = true }
 
 [dev-dependencies]
 dev = { path = "../dev" }

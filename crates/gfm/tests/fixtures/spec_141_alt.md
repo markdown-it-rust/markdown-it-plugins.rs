@@ -1,4 +1,5 @@
 Example 141
+(tag filter applied)
 ......
 
 <style
@@ -11,7 +12,7 @@ okay
 
 ......
 
-<style
+&lt;style
   type="text/css">
 h1 {color:red;}
 

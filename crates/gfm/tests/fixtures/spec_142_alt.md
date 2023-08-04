@@ -1,4 +1,5 @@
 Example 142
+(tag filter applied)
 ......
 
 <style
@@ -8,7 +9,7 @@ foo
 
 ......
 
-<style
+&lt;style
   type="text/css">
 
 foo

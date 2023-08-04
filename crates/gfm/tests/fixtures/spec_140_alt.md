@@ -1,4 +1,5 @@
 Example 140
+(tag filter applied)
 ......
 
 <script type="text/javascript">
@@ -10,7 +11,7 @@ okay
 
 ......
 
-<script type="text/javascript">
+&lt;script type="text/javascript">
 // JavaScript example
 
 document.getElementById("demo").innerHTML = "Hello JavaScript!";
