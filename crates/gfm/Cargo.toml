@@ -1,7 +1,7 @@
 [package]
 name = "markdown-it-gfm"
 version = "0.1.0"
-description = "A markdown-it plugin for parsing definition lists"
+description = "A markdown-it plugin to implement Github Flavored Markdown"
 readme = "README.md"
 license = "Apache-2.0"
 authors = { workspace = true }
