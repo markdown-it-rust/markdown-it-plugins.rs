@@ -14,7 +14,7 @@ categories = ["text-processing", "parsing"]
 markdown-it =  { version = "0.6", default-features = false }
 regex       = ">= 1.0.0, < 2"
 once_cell   = ">= 1.0.1, < 2"
-testing     = "0.33"
+testing     = "0.34"
 rstest      = "0.17"
 # possible other packages for testing that are not actually used currently
 # indoc, rtest, insta
